@@ -4,7 +4,10 @@ description: >
   locally using sqflite and auto-syncs when internet returns.
   App never freezes. Data never lost. No manual retry needed.
 version: 1.0.0
-homepage: https://github.com/yourusername/syncraft
+
+homepage: https://github.com/Coderkube-App
+repository: https://github.com/Coderkube-App/syncraft
+issue_tracker: https://github.com/Coderkube-App/syncraft/issues
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
