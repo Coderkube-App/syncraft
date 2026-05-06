@@ -1,14 +1,24 @@
-// A CachedResponse stores the last successful GET response.
-// When offline, syncraft returns this instead of making a network call.
-// This prevents the app from freezing when GET is called with no internet.
-
+/// Represents a cached successful GET response stored in the local database.
+///
+/// When the device is offline, [SyncService] returns a [CachedResponse]
+/// instead of making a network call, ensuring the app remains functional.
 class CachedResponse {
-  final String endpoint; // the API URL this cache belongs to
-  final String responseBody; // the raw JSON response string from the server
-  final DateTime cachedAt; // when this response was last saved
-  final int statusCode; // HTTP status code e.g. 200
-  final DateTime? lastAccessedAt; // when this cache was last read (for LRU)
+  /// The API URL this cache entry belongs to.
+  final String endpoint;
 
+  /// The raw JSON response string from the server.
+  final String responseBody;
+
+  /// Timestamp when this response was first saved to the cache.
+  final DateTime cachedAt;
+
+  /// HTTP status code of the original response (e.g., 200).
+  final int statusCode;
+
+  /// Timestamp when this cache entry was last read (used for LRU deletion).
+  final DateTime? lastAccessedAt;
+
+  /// Creates a new [CachedResponse].
   CachedResponse({
     required this.endpoint,
     required this.responseBody,

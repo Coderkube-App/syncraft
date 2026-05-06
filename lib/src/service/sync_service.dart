@@ -28,22 +28,37 @@ import '../network/network_checker.dart';
 import '../storage/cache_storage.dart';
 import '../storage/local_storage.dart';
 
+/// SyncService is the primary interface for developers using the Syncraft package.
+///
+/// It handles GET requests (with local caching) via [getData] and
+/// POST/PUT/PATCH/DELETE requests (with offline queuing) via [sendData].
+///
+/// It also manages the background synchronization process and provides
+/// hooks for UI feedback through callbacks like [onQueued], [onSynced],
+/// and [onFailed].
 class SyncService {
-  // All configuration — messages, timeouts, limits — lives here
+  /// All configuration — messages, timeouts, limits — lives here.
   final SyncCraftConfig config;
 
-  // Optional callbacks so the UI can react to sync events
-  // Each callback receives the item AND the message from SyncCraftConfig
+  /// Optional callbacks so the UI can react to sync events.
+  /// Each callback receives the item AND the message from [SyncCraftConfig].
+
+  /// Called when a request is saved offline due to lack of connectivity.
   final void Function(SyncItem item, String message)? onQueued;
+
+  /// Called when a queued request is successfully sent to the server.
   final void Function(SyncItem item, String message)? onSynced;
+
+  /// Called when a request fails due to a server or network error.
   final void Function(SyncItem item, String error, String message)? onFailed;
 
   final SyncManager _manager;
   final SyncQueue _queue;
 
-  // The sync status stream — listen to this in your UI for live updates
+  /// The sync status stream — listen to this in your UI for live updates.
   Stream<SyncStatus> get statusStream => _manager.statusStream;
 
+  /// Creates a new [SyncService] with optional configuration and callbacks.
   SyncService({
     SyncCraftConfig? config,
     this.onQueued,
@@ -57,13 +72,14 @@ class SyncService {
           maxCacheSizeMB: (config ?? const SyncCraftConfig()).maxCacheSizeMB,
         );
 
-  // Call this ONCE in main() or initState() before using getData/sendData.
-  // Order of operations:
-  //   1. Delete expired cache (TTL)
-  //   2. Enforce row/size limits (LRU)
-  //   3. Run VACUUM weekly (disk cleanup)
-  //   4. Subscribe to status stream for callbacks
-  //   5. Start connectivity listener for auto-sync
+  /// Initializes the service. Call this ONCE in main() or initState().
+  ///
+  /// This performs database maintenance:
+  /// 1. Deletes expired cache entries based on TTL.
+  /// 2. Enforces row/size limits (LRU).
+  /// 3. Runs VACUUM if configured.
+  /// 4. Subscribes to the status stream for callbacks.
+  /// 5. Starts the connectivity listener for auto-sync.
   Future<void> init() async {
     // Step 1 — delete cache rows older than cacheDurationHours
     await CacheStorage.deleteExpiredCache(config.cacheDurationHours);
@@ -122,15 +138,14 @@ class SyncService {
     debugPrint('syncraft: initialized — DB optimized ✓');
   }
 
-  // Use this for GET requests.
-  //
-  // If ONLINE  → makes live HTTP call, saves response to cache, returns data
-  // If OFFLINE → returns cached data instantly (SyncResult.cached)
-  //              queues a background refresh for when internet returns
-  // If OFFLINE and NO CACHE → queues the request, returns SyncResult.noCache
-  //              Developer shows empty state — NOT an error screen
-  //
-  // The app NEVER freezes. This method always returns immediately.
+  /// Use this for GET requests.
+  ///
+  /// If ONLINE  → makes live HTTP call, saves response to cache, returns data.
+  /// If OFFLINE → returns cached data instantly ([SyncResult.cached]) and
+  ///              queues a background refresh for when internet returns.
+  /// If OFFLINE and NO CACHE → queues the request, returns [SyncResult.noCache].
+  ///
+  /// The app NEVER freezes. This method always returns immediately if cache exists.
   Future<SyncResult> getData({
     required String endpoint,
     Map<String, String> headers = const {},
@@ -189,15 +204,13 @@ class SyncService {
     }
   }
 
-  // Use this for POST, PUT, PATCH, DELETE requests.
-  //
-  // If ONLINE  → saves to queue, sends immediately, removes on success
-  // If OFFLINE → saves to queue, fires onQueued callback, auto-sends on reconnect
-  //
-  // Duplicate protection — if same endpoint+method+data is already pending,
-  // it is silently ignored. User can tap Submit button multiple times safely.
-  //
-  // The app NEVER shows an error when offline — it queues silently.
+  /// Use this for POST, PUT, PATCH, DELETE requests.
+  ///
+  /// If ONLINE  → saves to queue, sends immediately, removes on success.
+  /// If OFFLINE → saves to queue, fires [onQueued] callback, auto-sends on reconnect.
+  ///
+  /// Duplicate protection — if same endpoint+method+data is already pending,
+  /// it is silently ignored.
   Future<SyncResult> sendData({
     required String endpoint,
     required Map<String, dynamic> data,
@@ -238,9 +251,10 @@ class SyncService {
     }
   }
 
-  // Manually retry all failed items.
-  // Call this from a "Retry" button in your UI.
-  // Does nothing if offline (no internet = no point retrying).
+  /// Manually retry all failed items.
+  ///
+  /// Call this from a "Retry" button in your UI.
+  /// Does nothing if offline.
   Future<void> retryFailed() async {
     final online = await NetworkChecker.isConnected();
     if (!online) {
@@ -250,34 +264,37 @@ class SyncService {
     await _manager.retryFailed();
   }
 
-  // Get all pending items (useful for showing a queue badge count)
+  /// Get all pending items (useful for showing a queue badge count).
   Future<List<SyncItem>> getPendingItems() => _queue.getPending();
 
-  // Get all failed items (useful for showing error states in UI)
+  /// Get all failed items (useful for showing error states in UI).
   Future<List<SyncItem>> getFailedItems() => _queue.getFailed();
 
-  // Get a full snapshot of the database health.
-  // Use this in a debug/admin screen to monitor cache and queue size.
+  /// Get a full snapshot of the database health.
+  ///
+  /// Use this in a debug/admin screen to monitor cache and queue size.
   Future<CacheStats> getCacheStats() async {
     final queueStats = await LocalStorage.getQueueStats();
     return CacheStorage.buildCacheStats(queueStats);
   }
 
-  // Delete all cached GET responses and run VACUUM.
-  // Does NOT affect the pending/failed queue.
+  /// Delete all cached GET responses and run VACUUM.
+  ///
+  /// Does NOT affect the pending/failed queue.
   Future<void> clearCache() async {
     await CacheStorage.clearAll();
     debugPrint('syncraft: cache cleared');
   }
 
-  // Delete only successfully synced items from the queue.
-  // Keeps pending and failed items so they are not lost.
+  /// Delete only successfully synced items from the queue.
+  ///
+  /// Keeps pending and failed items so they are not lost.
   Future<void> clearQueue() async {
     await LocalStorage.clearSuccessful();
     await LocalStorage.vacuum();
     debugPrint('syncraft: queue cleaned');
   }
 
-  // Clean up resources. Call in dispose() of your widget/service.
+  /// Clean up resources. Call in dispose() of your widget/service.
   void dispose() => _manager.dispose();
 }
