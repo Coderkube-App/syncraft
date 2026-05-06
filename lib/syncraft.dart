@@ -1,9 +1,8 @@
-// This is the ONLY file developers import in their Flutter app:
-//   import 'package:syncraft/syncraft.dart';
-//
-// All internal files (LocalStorage, SyncQueue, SyncManager, etc.)
-// are in src/ and are NOT exported — developers never use them directly.
-
+/// Syncraft is a robust Flutter package for managing API request synchronization,
+/// local caching, and offline data handling.
+///
+/// It provides a [SyncService] to handle requests, a sync queue for offline
+/// operations, and cache management tools to monitor database health.
 library syncraft;
 
 // The one public class developers use

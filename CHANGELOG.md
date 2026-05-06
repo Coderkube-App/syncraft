@@ -1,3 +1,16 @@
+## 1.0.1
+
+### 🔧 Improvements
+- Updated package description to meet pub.dev guidelines
+- Upgraded dependencies to latest compatible versions
+- Improved package structure and metadata
+
+### 📚 Documentation
+- Added and improved Dart documentation for public APIs
+- Enhanced README clarity and usage instructions
+
+---
+
 ## 1.0.0
 
 ### 🎉 Initial Release — Syncraft

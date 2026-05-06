@@ -14,7 +14,8 @@ class SyncQueue {
   // For POST/PUT/DELETE: blocked if a pending item with the same hash exists.
   // Returns true if the item was enqueued, false if it was a duplicate.
   Future<bool> enqueue(SyncItem item) async {
-    if (item.method != 'GET' && item.requestHash != null &&
+    if (item.method != 'GET' &&
+        item.requestHash != null &&
         item.requestHash!.isNotEmpty) {
       final duplicate = await DuplicateGuard.isDuplicate(item.requestHash!);
       if (duplicate) {

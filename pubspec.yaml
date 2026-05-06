@@ -1,9 +1,6 @@
 name: syncraft
-description: >
-  Offline-first Flutter package. Queues GET/POST/PUT/DELETE requests
-  locally using sqflite and auto-syncs when internet returns.
-  App never freezes. Data never lost. No manual retry needed.
-version: 1.0.0
+description: Offline-first API request queue for Flutter with automatic background sync and retry support.
+version: 1.0.1
 
 homepage: https://github.com/Coderkube-App
 repository: https://github.com/Coderkube-App/syncraft
@@ -16,13 +13,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sqflite: ^2.3.0
-  connectivity_plus: ^6.0.0
-  http: ^1.2.0
-  uuid: ^4.3.3
-  path: ^1.9.0
-  crypto: ^3.0.3
-  shared_preferences: ^2.2.2
+  sqflite: ^2.4.2+1
+  connectivity_plus: ^7.1.1
+  http: ^1.6.0
+  uuid: ^4.5.3
+  path: ^1.9.1
+  crypto: ^3.0.7
+  shared_preferences: ^2.5.5
 
 dev_dependencies:
   flutter_test:

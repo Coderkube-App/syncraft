@@ -1,13 +1,21 @@
-// SyncStatus is emitted on the statusStream so the UI can react in real time.
-// The developer listens to this stream to show live sync feedback.
+import 'package:syncraft/syncraft.dart';
 
-import 'sync_item.dart';
-
+/// Represents a synchronization event emitted on the [SyncService.statusStream].
+///
+/// Developers can listen to this stream to provide real-time feedback in the UI,
+/// such as showing a progress bar or a success snackbar.
 class SyncStatus {
-  final String event; // 'syncing', 'synced', 'failed', 'queued'
-  final int? count; // number of items being synced (for 'syncing' event)
-  final SyncItem? item; // the item that was processed
-  final String? error; // error message (only for 'failed' event)
+  /// The type of event ('syncing', 'synced', 'failed', 'queued').
+  final String event;
+
+  /// The number of items being processed. Typically present for 'syncing' events.
+  final int? count;
+
+  /// The specific [SyncItem] that was processed.
+  final SyncItem? item;
+
+  /// An error message. Present only for 'failed' events.
+  final String? error;
 
   const SyncStatus._({
     required this.event,
@@ -16,19 +24,19 @@ class SyncStatus {
     this.error,
   });
 
-  // Called when we start syncing a batch — count = number of items
+  /// Creates a status indicating that a batch of items has started syncing.
   factory SyncStatus.syncing(int count) =>
       SyncStatus._(event: 'syncing', count: count);
 
-  // Called when a single item was successfully sent to the server
+  /// Creates a status indicating that an item has been successfully synced.
   factory SyncStatus.synced(SyncItem item) =>
       SyncStatus._(event: 'synced', item: item);
 
-  // Called when a single item failed to send
+  /// Creates a status indicating that an item failed to sync.
   factory SyncStatus.failed(SyncItem item, String error) =>
       SyncStatus._(event: 'failed', item: item, error: error);
 
-  // Called when an item was saved offline (queued for later)
+  /// Creates a status indicating that an item was saved offline (queued).
   factory SyncStatus.queued(SyncItem item) =>
       SyncStatus._(event: 'queued', item: item);
 }

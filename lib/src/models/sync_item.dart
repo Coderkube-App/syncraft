@@ -1,20 +1,39 @@
-// A SyncItem is one queued API request stored in SQLite.
-// Every request (GET/POST/PUT/DELETE) that needs to be sent
-// becomes a SyncItem. If offline, it waits until internet returns.
-
 import 'dart:convert';
 
+/// Represents a single API request that is queued for synchronization.
+///
+/// Every request (GET/POST/PUT/DELETE) that needs to be sent becomes a [SyncItem].
+/// If the device is offline, the item is stored in the local database until
+/// internet connectivity is restored.
 class SyncItem {
-  final String id; // unique UUID for this request
-  final String endpoint; // full API URL e.g. https://api.example.com/posts
-  final String method; // GET, POST, PUT, PATCH, DELETE
-  final Map<String, dynamic> data; // request body (empty map for GET)
-  final Map<String, String> headers; // custom HTTP headers
-  String status; // pending, syncing, success, failed
-  int retryCount; // how many times we tried and failed
-  final DateTime createdAt; // when this request was first created
-  final String? requestHash; // MD5 hash used to detect duplicate requests
+  /// Unique UUID for this request.
+  final String id;
 
+  /// Full API URL (e.g., https://api.example.com/posts).
+  final String endpoint;
+
+  /// HTTP method (GET, POST, PUT, PATCH, DELETE).
+  final String method;
+
+  /// Request body data. Empty map for GET requests.
+  final Map<String, dynamic> data;
+
+  /// Custom HTTP headers for this request.
+  final Map<String, String> headers;
+
+  /// Current status of the request (pending, syncing, success, failed).
+  String status;
+
+  /// Number of times this request has been attempted and failed.
+  int retryCount;
+
+  /// Timestamp when this request was first created.
+  final DateTime createdAt;
+
+  /// MD5 hash used to detect duplicate requests.
+  final String? requestHash;
+
+  /// Creates a new [SyncItem].
   SyncItem({
     required this.id,
     required this.endpoint,

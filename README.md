@@ -16,7 +16,7 @@ Add `syncraft` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  syncraft: ^1.0.0
+  syncraft: ^1.0.1
 ```
 
 ### Android Requirements
