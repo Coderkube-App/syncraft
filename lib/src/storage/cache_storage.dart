@@ -127,9 +127,8 @@ class CacheStorage {
   // Called on every app start to keep the cache fresh.
   static Future<void> deleteExpiredCache(int maxAgeHours) async {
     final db = await database;
-    final cutoff = DateTime.now()
-        .subtract(Duration(hours: maxAgeHours))
-        .toIso8601String();
+    final cutoff =
+        DateTime.now().subtract(Duration(hours: maxAgeHours)).toIso8601String();
 
     final count = await db.delete(
       _tableName,
@@ -155,8 +154,7 @@ class CacheStorage {
     final countResult = await db.rawQuery(
       'SELECT COUNT(*) as cnt FROM $_tableName',
     );
-    final currentCount =
-        (countResult.first['cnt'] as int?) ?? 0;
+    final currentCount = (countResult.first['cnt'] as int?) ?? 0;
 
     if (currentCount > maxRows) {
       final overflow = currentCount - maxRows;
@@ -167,7 +165,8 @@ class CacheStorage {
         ')',
         [overflow],
       );
-      debugPrint('syncraft: LRU eviction — removed $overflow row(s) (row limit)');
+      debugPrint(
+          'syncraft: LRU eviction — removed $overflow row(s) (row limit)');
     }
 
     // Step B — Size check in MB
@@ -177,8 +176,7 @@ class CacheStorage {
       final sizeResult = await db.rawQuery(
         'SELECT SUM(LENGTH(response_body)) as total_bytes FROM $_tableName',
       );
-      final totalBytes =
-          (sizeResult.first['total_bytes'] as int?) ?? 0;
+      final totalBytes = (sizeResult.first['total_bytes'] as int?) ?? 0;
       final sizeMB = totalBytes / (1024 * 1024);
 
       if (sizeMB > maxSizeMB) {

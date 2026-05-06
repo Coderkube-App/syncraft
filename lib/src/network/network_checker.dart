@@ -1,15 +1,18 @@
-// This file checks internet connectivity using connectivity_plus
-// and performs a real internet access check.
-// It is cross-platform safe (Android, iOS, macOS, Web).
-
-import 'dart:async';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 
+/// Utility class for checking internet connectivity and actual internet access.
+///
+/// It is cross-platform safe (Android, iOS, macOS, Web) and uses
+/// a combination of interface checks and socket connections to verify
+/// internet availability.
 class NetworkChecker {
-  // One-time check — are we connected AND have internet access?
+  /// Performs a one-time check to see if the device is connected to the internet.
+  ///
+  /// This check verifies both that a network interface is active and that
+  /// data can actually flow (by attempting a socket connection).
   static Future<bool> isConnected() async {
     final results = await Connectivity().checkConnectivity();
     final hasInterface =
@@ -45,7 +48,7 @@ class NetworkChecker {
     }
   }
 
-  // Stream that emits true/false every time connectivity changes.
+  /// A stream that emits true/false whenever the network connectivity status changes.
   static Stream<bool> get onConnectivityChanged {
     return Connectivity().onConnectivityChanged.map(
           (results) =>
